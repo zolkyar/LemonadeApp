@@ -1,7 +1,6 @@
 package com.example.lemonadeapp
 
 import android.os.Bundle
-import android.view.Window
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
@@ -23,10 +22,12 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -40,16 +41,13 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             LemonadeAppTheme {
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
-                ) {
                     LemonadeApp()
-                }
+
             }
         }
     }
 }
+
 
 @Composable
 fun LemonadeApp() {
@@ -62,7 +60,20 @@ fun LemonadeApp() {
 @Preview
 @Composable
 fun LemonadeTree(modifier: Modifier = Modifier) {
+    // Declare the page variable
+    var page by remember { mutableStateOf(1) }
+    // Find the page companion image and text
+    val newPair = when(page){
+        1 -> Pair(R.drawable.lemon_tree, "Tap the lemon tree to select a lemon")
+        2 -> Pair(R.drawable.lemon_squeeze, "Keep tapping the lemon to sequeeze it")
+        3 -> Pair(R.drawable.lemon_drink, "Tap the lemonade to drink it")
+        else -> Pair(R.drawable.lemon_restart, "Tap the empty glass to start again")
+    }
+    val (imageResource, text) = newPair
+
+    // The main Box
     Column (modifier = modifier){
+        // The header
         Box(
             Modifier
                 .background(color = Color(249, 228, 37))
@@ -72,20 +83,28 @@ fun LemonadeTree(modifier: Modifier = Modifier) {
         ) {
             Text(text = "Lemonade", fontSize = 20.sp, fontWeight = FontWeight.Bold)
         }
+
+        // The body
         Box(modifier, contentAlignment = Alignment.Center) {
-            Column (modifier, horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center){
-                Button(onClick = {},
+            Column (
+                modifier,
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ){
+                Button(onClick = {page = if(page>3) 1 else page+1},
                     Modifier
                         .height(220.dp)
-                        .width(220.dp), colors = ButtonDefaults.buttonColors(Color(195, 236, 210)), shape = RoundedCornerShape(40.dp)) {
+                        .width(220.dp),
+                    colors = ButtonDefaults.buttonColors(Color(195, 236, 210)),
+                    shape = RoundedCornerShape(40.dp)) {
                     Image(
-                        painter = painterResource(R.drawable.lemon_tree),
+                        painter = painterResource(imageResource),
                         contentDescription = "Lemonade Tree",
                         Modifier.size(180.dp)
                     )
                 }
                 Spacer(modifier = Modifier.height(30.dp))
-                Text(text = "Tap the lemon tree to select a lemon", fontSize = 15.sp)
+                Text(text = text, fontSize = 15.sp)
             }
         }
     }
